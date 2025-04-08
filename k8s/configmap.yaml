@@ -1,0 +1,26 @@
+apiVersion: #{configmap.version}#
+kind: ConfigMap
+data:
+  application.yaml: |-
+    spring:
+      main:
+        banner-mode: "off"
+      data:
+        mongodb:
+          database: crm
+          uri: "${MONGO_CS}"
+      logging:
+        level:
+          root: INFO
+          it.hype: INFO
+          org.springframework.web: INFO
+          org.springframework.security: INFO
+          org.apache.http: INFO
+          httpclient.wire: INFO
+          org.apache.http.client.protocol.ResponseProcessCookies: ERROR
+          org.apache.kafka: WARN
+          org.springframework.data.mongodb.core.MongoTemplate: INFO
+          org.mongodb.driver: INFO
+metadata:
+  name: configmap-profile-vantaggi
+  namespace: profile

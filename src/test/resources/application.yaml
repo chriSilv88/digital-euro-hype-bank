@@ -1,0 +1,10 @@
+spring:
+  main:
+    banner-mode: "off"
+  data:
+    mongodb:
+      database: crm
+      uri: "mongodb://localhost:27017/crm"
+  mongodb:
+    embedded:
+      version: "4.0.21"

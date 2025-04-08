@@ -1,0 +1,31 @@
+spring:
+  main:
+    banner-mode: "off"
+  data:
+    mongodb:
+      database: crm
+      uri: "mongodb://localhost:27017/crm"
+app:
+  local: true
+
+my:
+  url: "http://todo"
+  api:
+    search: "todo"
+
+server:
+  servlet:
+    context-path: "/TODO"
+  port: 8080
+
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.apache.http: INFO
+    httpclient.wire: INFO
+    org.apache.http.client.protocol.ResponseProcessCookies: ERROR
+    org.apache.kafka: WARN
+    org.mongodb.driver: INFO
+    it.hype: DEBUG
