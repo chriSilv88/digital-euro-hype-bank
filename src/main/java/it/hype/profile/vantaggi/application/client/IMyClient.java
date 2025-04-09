@@ -1,8 +1,8 @@
-package it.hype.profile.vantaggi.application.api;
+package it.hype.profile.vantaggi.application.client;
 
 import it.hype.profile.vantaggi.application.config.MyClientConfig;
-import it.hype.profile.vantaggi.application.models.my.MyRequest;
-import it.hype.profile.vantaggi.application.models.my.MyResponse;
+import it.hype.profile.vantaggi.application.models.MyRequest;
+import it.hype.profile.vantaggi.application.models.MyResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

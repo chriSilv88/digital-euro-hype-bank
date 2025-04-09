@@ -1,4 +1,4 @@
-package it.hype.profile.vantaggi.application.models.my;
+package it.hype.profile.vantaggi.application.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyRequest {
+public class MyResponse {
     private Object o;
 }

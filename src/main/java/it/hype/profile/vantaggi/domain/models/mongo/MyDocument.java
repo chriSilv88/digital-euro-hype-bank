@@ -1,4 +1,4 @@
-package it.hype.profile.vantaggi.domain.models;
+package it.hype.profile.vantaggi.domain.models.mongo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
