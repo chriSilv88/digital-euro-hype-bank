@@ -1,5 +1,6 @@
 trigger:
   - master
+  - main
 
 parameters:
   - name: forRelease
@@ -13,20 +14,33 @@ parameters:
     type: string
     default: 'HYPE Backend - Cloud'
   - name: jiraApplication
-    displayName: 'Jira Application'
+    displayName: 'Jira Asset'
     type: string
     default: 'HYPE (Light Banking)'
+
 
 variables:
   - name: imageName
     value: 'profile-vantaggi'
+  - name: deploymentName
+    value: 'profile-vantaggi'
+  - name: namespace
+    value: 'hype-profile'
+#  - name: keyVaultName
+#    value: "keyv-hype-cards-001"
+  - name: downloadCentricoStgPem
+    value: false
+  - name: downloadCentricoDevPem
+    value: false
+  - name: downloadCentricoProPem
+    value: false
   - group: 'Container Registry'
   - group: 'Endpoints'
   - group: 'Service Connections'
   - name: openTelemetryExtensionVersion
     value: "0.0.1"
   - name: jdkVersion
-    value: '1.21'
+    value: "1.21"
 
 resources:
   repositories:
@@ -39,8 +53,8 @@ extends:
   template: processes/generic.yaml@templates
   parameters:
     build: /build/java-k8s.yaml
-    release: /release/k8s-apply.yaml
     qa: /qa/java.yaml
+    release: /release/k8s-apply.yaml
     forRelease: ${{ parameters.forRelease }}
     useSonar: ${{ parameters.useSonar }}
     jiraAsset: ${{ parameters.jiraAsset }}
@@ -50,8 +64,8 @@ extends:
       release: $[ stageDependencies.Build.BuildJava.outputs['setVersion.version'] ]
     dev:
       variables:
-      - name: 'weKubernetesServiceEndpoint'
-        value: '$(sc.dv.aks.1)'
+        - name: 'weKubernetesServiceEndpoint'
+          value: '$(sc.dv.aks.hype.1)'
       group:
         - 'Endpoints DEV'
         - 'k8s DEV'
@@ -61,10 +75,8 @@ extends:
         - /ci-cd/dev.yaml@self
     stg:
       variables:
-      - name: 'weKubernetesServiceEndpoint'
-        value: '$(sc.st.aks.1)'
-      - name: 'neKubernetesServiceEndpoint'
-        value: '$(sc.st.aks.2)'
+        - name: 'neKubernetesServiceEndpoint'
+          value: '$(sc.st.aks.hype.2)'
       group:
         - 'Endpoints STG'
         - 'k8s STG'
@@ -74,14 +86,14 @@ extends:
         - /ci-cd/stg.yaml@self
     prod:
       variables:
-      - name: 'weKubernetesServiceEndpoint'
-        value: '$(sc.pr.aks.1)'
-      - name: 'neKubernetesServiceEndpoint'
-        value: '$(sc.pr.aks.2)'
+        - name: 'weKubernetesServiceEndpoint'
+          value: '$(sc.pr.aks.hype.1)'
+        - name: 'neKubernetesServiceEndpoint'
+          value: '$(sc.pr.aks.hype.2)'
       group:
-        - 'Endpoints PROD'
-        - 'k8s PROD'
-        - 'KeyVault PROD'
-        - 'Logging PROD'
+        - 'Endpoints PRD'
+        - 'k8s PRD'
+        - 'KeyVault PRD'
+        - 'Logging PRD'
       template:
         - /ci-cd/prod.yaml@self

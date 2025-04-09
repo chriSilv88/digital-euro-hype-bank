@@ -1,3 +1,10 @@
 variables:
-- name: TODO
-  value: TODO
+  - name: logLevel
+    value: "info"
+  - name: tolerations
+    value: >
+      tolerations:
+             - key: GeneralPurpose
+               operator: Equal
+               value: "true"
+               effect: NoSchedule

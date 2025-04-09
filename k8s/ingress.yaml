@@ -6,16 +6,16 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
-  name: ingress-profile-vantaggi
-  namespace: profile
+  name: ingress-#{deploymentName}#
+  namespace: #{namespace}#
 spec:
   rules:
     - http:
         paths:
-          - path: /TODO(/|$)(.*)
+          - path: /#{deploymentName}#(/|$)(.*)
             pathType: Prefix
             backend:
               service:
-                name: profile-vantaggi
+                name: #{deploymentName}#
                 port:
                   number: 8080

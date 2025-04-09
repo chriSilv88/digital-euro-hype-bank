@@ -18,6 +18,15 @@ server:
     context-path: "/TODO"
   port: 8080
 
+auth:
+  verifyToken: true
+  key: "216d07cc0a0ba94c43cd38f15f68c7bd"
+  url: "https://api.stg.hype.it"
+  path: "/internal/apiwebservices/multihypelegacyservice/session"
+  tokenHeaderName: "auth-token"
+  skipUserDataQueryParamName: "skipUserData"
+  skipUserDataQueryParamValue: true
+
 logging:
   level:
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG

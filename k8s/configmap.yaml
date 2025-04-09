@@ -2,6 +2,14 @@ apiVersion: #{configmap.version}#
 kind: ConfigMap
 data:
   application.yaml: |-
+    auth:
+      verifyToken: true
+      key: "${AUTH_TOKEN_KEY}"
+      url: "#{apim.url}#"
+      path: "#{validate-jwt-token.path}#"
+      tokenHeaderName: "auth-token"
+      skipUserDataQueryParamName: "skipUserData"
+      skipUserDataQueryParamValue: true    
     spring:
       main:
         banner-mode: "off"
@@ -22,5 +30,5 @@ data:
           org.springframework.data.mongodb.core.MongoTemplate: INFO
           org.mongodb.driver: INFO
 metadata:
-  name: configmap-profile-vantaggi
-  namespace: profile
+  name: configmap-#{deploymentName}#
+  namespace: #{namespace}#

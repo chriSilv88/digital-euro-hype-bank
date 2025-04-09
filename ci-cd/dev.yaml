@@ -1,3 +1,12 @@
 variables:
-- name: TODO
-  value: TODO
+  - name: logLevel
+    value: "debug"
+  - name: tenant
+    value: "hype-consumer"
+  - name: tolerations
+    value: >
+      tolerations:
+             - effect: NoSchedule
+               key: kubernetes.azure.com/scalesetpriority
+               operator: Equal
+               value: spot

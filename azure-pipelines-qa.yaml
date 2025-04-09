@@ -1,0 +1,40 @@
+trigger:
+  tags:
+    include:
+      - '*'
+
+parameters:
+  - name: useSonar
+    type: boolean
+    default: true
+  - name: jiraAsset
+    displayName: 'Jira Asset'
+    type: string
+    default: 'HYPE Backend - Cloud'
+  - name: jiraApplication
+    displayName: 'Jira Application'
+    type: string
+    default: 'HYPE (Light Banking)'
+
+variables:
+  - group: 'Container Registry'
+  - group: 'Service Connections'
+  - name: jdkVersion
+    value: '1.21'
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: HypeCloudInfra/HypePipelineTemplate
+      ref: master
+
+extends:
+  template: processes/generic.yaml@templates
+  parameters:
+    qa: /qa/java.yaml
+    useSonar: ${{ parameters.useSonar }}
+    jiraAsset: ${{ parameters.jiraAsset }}
+    jiraApplication: ${{ parameters.jiraApplication }}
+    version:
+      build: $(Build.BuildId)

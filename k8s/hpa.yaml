@@ -1,28 +1,28 @@
 apiVersion: #{hpa.version}#
 kind: HorizontalPodAutoscaler
 metadata:
-  name: profile-vantaggi
-  namespace: profile
+  name: #{deploymentName}#
+  namespace: #{namespace}#
   labels:
-    app: profile-vantaggi
+    app: #{deploymentName}#
     type: hpa
 spec:
   scaleTargetRef:
     apiVersion: #{deployment.version}#
     kind: Deployment
-    name: profile-vantaggi
-  minReplicas: 2
+    name: #{deploymentName}#
+  minReplicas: 1
   maxReplicas: 4
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 70
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 85
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 85
