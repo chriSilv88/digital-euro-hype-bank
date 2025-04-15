@@ -99,7 +99,7 @@ external configuration files. Specifically:
 Developers should refer to the configuration documentation for best practices on
 managing secrets and environment-specific parameters.
 
-## 🚢 Deployment
+## Deployment
 
 The application leverages a CI/CD pipeline using Azure Pipelines for seamless
 deployment to Azure Kubernetes Service (AKS). Key configuration details include:
@@ -128,7 +128,7 @@ include:
 Contribution guidelines are documented separately to ensure code quality and
 uniformity across the team.
 
-## 📄 License
+## License
 
 This project is for internal use only and is proprietary to Hype IT.
 Redistribution or external use is restricted without prior authorization.
