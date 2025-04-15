@@ -1,4 +1,4 @@
-package it.hype.profile.vantaggi;
+package it.hype.profile.pocdigitaleuro;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

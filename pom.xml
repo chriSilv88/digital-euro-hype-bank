@@ -9,8 +9,10 @@
         <relativePath/>
     </parent>
     <groupId>it.hype</groupId>
-    <artifactId>profile-vantaggi</artifactId>
+    <artifactId>poc-digital-euro</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <name>poc-digital-euro</name>
+    <description>POC Spring Boot per Digital Euro Backend</description>
     <properties>
         <java.version>21</java.version>
         <openfeign.version>4.1.3</openfeign.version>
@@ -19,6 +21,7 @@
         <snakeyaml.version>2.2</snakeyaml.version>
         <parentJar.version>2.0.3-SPRBT3.3.10-ALL</parentJar.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>it.hype</groupId>
@@ -96,8 +99,8 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
         </dependency>
-
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

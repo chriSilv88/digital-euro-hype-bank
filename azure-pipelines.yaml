@@ -18,16 +18,15 @@ parameters:
     type: string
     default: 'HYPE (Light Banking)'
 
-
 variables:
   - name: imageName
     value: 'profile-vantaggi'
   - name: deploymentName
     value: 'profile-vantaggi'
   - name: namespace
-    value: 'hype-profile'
-#  - name: keyVaultName
-#    value: "keyv-hype-cards-001"
+    value: 'poc-digital-euro'
+  # - name: keyVaultName
+  #   value: "keyv-hype-cards-001"
   - name: downloadCentricoStgPem
     value: false
   - name: downloadCentricoDevPem
