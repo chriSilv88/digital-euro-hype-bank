@@ -28,3 +28,9 @@ build/
 !**/src/test/**/build/
 
 .vscode/
+
+*.jar
+index.html
+agent.jar
+opentelemetry-javaagent.jar
+opentelemetry-agent-extension.jar

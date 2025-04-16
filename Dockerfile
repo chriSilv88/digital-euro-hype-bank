@@ -1,12 +1,12 @@
 FROM openjdk:8-jdk-alpine AS java-base
 
-RUN wget -O agent.jar #{opentelemetry-v1.33.4.jar}#
+ADD opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
 
 RUN addgroup -S hype && adduser -S -G hype hype
-RUN mkdir /app
-RUN chown hype:hype /app
+RUN mkdir -p /app/tmp
+RUN chown -R hype:hype /app
 
-ADD target/profile-vantaggi-#{setVersion.originalVersion}#.jar /app/profile-vantaggi.jar
+ADD target/poc-digital-euro-0.0.1-SNAPSHOT.jar /app/profile-vantaggi.jar
 ADD opentelemetry-agent-extension.jar /app/opentelemetry-agent-extension.jar
 RUN mv agent.jar /app/agent.jar
 
@@ -16,9 +16,7 @@ COPY --from=java-base /etc/passwd /etc/group /etc/shadow /etc/
 COPY --from=java-base /app /app
 
 EXPOSE 8080
-
 USER hype
-
 VOLUME /tmp
 
-ENTRYPOINT ["java", "-Xmx2g", "-jar", "-javaagent:/app/agent.jar", "/app/profile-vantaggi.jar"]
+ENTRYPOINT ["java", "-Xmx2g", "-javaagent:/app/opentelemetry-javaagent.jar", "-jar", "/app/profile-vantaggi.jar"]

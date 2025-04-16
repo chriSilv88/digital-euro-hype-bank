@@ -1,4 +1,5 @@
-package it.hype.profile.vantaggi;
+package it.hype.profile.pocdigitaleuro;
+
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
