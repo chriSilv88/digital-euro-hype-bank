@@ -1,4 +1,4 @@
-package it.hype.profile.vantaggi.domain.models.mongo;
+package it.hype.profile.pocdigitaleuro.domain.models.mongo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,12 +15,14 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "TODO")
+@Document(collection = "documents")
 public class MyDocument {
     @CreatedDate
     private Date createdDate;
+
     @LastModifiedDate
     private Date lastModifiedDate;
+
     @Id
     private String id;
 }

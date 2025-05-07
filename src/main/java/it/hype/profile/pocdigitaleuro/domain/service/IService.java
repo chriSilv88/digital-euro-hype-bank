@@ -1,5 +1,9 @@
-package it.hype.profile.vantaggi.domain.service;
+package it.hype.profile.pocdigitaleuro.domain.service;
+
+import it.hype.profile.pocdigitaleuro.domain.models.mongo.MyDocument;
+import java.util.List;
 
 public interface IService {
-    Object get();
+    List<MyDocument> findAll();
+    MyDocument save(MyDocument doc);
 }

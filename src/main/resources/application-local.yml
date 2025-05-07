@@ -3,25 +3,45 @@ spring:
     banner-mode: "off"
   data:
     mongodb:
+      uri: mongodb://localhost:27017/crm
       database: crm
-      uri: "mongodb://localhost:27017/crm"
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
+    time-zone: Europe/Rome
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Digital Euro - LOCAL
+        url: /openapi/desp-api-local.yaml
+
+server:
+  port: 8080
+  servlet:
+    context-path: /TODO
+
 app:
   local: true
 
-my:
-  url: "http://todo"
-  api:
-    search: "todo"
+auth:
+  verifyToken: true
+  key: "216d07cc0a0ba94c43cd38f15f68c7bd"
+  url: "https://api.stg.hype.it"
+  path: "/internal/apiwebservices/multihypelegacyservice/session"
+  tokenHeaderName: auth-token
+  skipUserDataQueryParamName: skipUserData
+  skipUserDataQueryParamValue: true
 
-server:
-  servlet:
-    context-path: "/TODO"
-  port: 8080
+my:
+  url: http://todo
+  api:
+    search: todo
 
 logging:
   level:
-    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    root: INFO
     org.springframework.web: INFO
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
     org.springframework.security: INFO
     org.apache.http: INFO
     httpclient.wire: INFO
@@ -29,3 +49,15 @@ logging:
     org.apache.kafka: WARN
     org.mongodb.driver: INFO
     it.hype: DEBUG
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

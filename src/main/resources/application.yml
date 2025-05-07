@@ -1,22 +1,31 @@
 spring:
+  profiles:
+    active: local
   main:
     banner-mode: "off"
   data:
     mongodb:
-      database: crm
       uri: "mongodb://localhost:27017/crm"
-app:
-  local: true
+      database: crm
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
+    time-zone: Europe/Rome
 
-my:
-  url: "http://todo"
-  api:
-    search: "todo"
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Digital Euro - PROD
+        url: /openapi/deps-api.yaml
+      - name: Digital Euro - LOCAL
+        url: /openapi/desp-api-local.yaml
 
 server:
+  port: 8080
   servlet:
     context-path: "/TODO"
-  port: 8080
+
+app:
+  local: true
 
 auth:
   verifyToken: true
@@ -27,10 +36,16 @@ auth:
   skipUserDataQueryParamName: "skipUserData"
   skipUserDataQueryParamValue: true
 
+my:
+  url: "http://todo"
+  api:
+    search: "todo"
+
 logging:
   level:
-    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    root: INFO
     org.springframework.web: INFO
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
     org.springframework.security: INFO
     org.apache.http: INFO
     httpclient.wire: INFO
@@ -38,3 +53,15 @@ logging:
     org.apache.kafka: WARN
     org.mongodb.driver: INFO
     it.hype: DEBUG
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

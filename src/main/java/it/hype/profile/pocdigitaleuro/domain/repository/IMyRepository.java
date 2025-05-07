@@ -1,13 +1,11 @@
-package it.hype.profile.vantaggi.domain.repository;
+package it.hype.profile.pocdigitaleuro.domain.repository;
 
-import it.hype.profile.vantaggi.domain.models.mongo.MyDocument;
-import org.bson.types.ObjectId;
+import it.hype.profile.pocdigitaleuro.domain.models.mongo.MyDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+@Repository
+public interface IMyRepository extends MongoRepository<MyDocument, String> {
 
-public interface IMyRepository extends MongoRepository<MyDocument, ObjectId> {
-
-    List<MyDocument> findAll();
 
 }

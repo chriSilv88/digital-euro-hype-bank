@@ -1,0 +1,836 @@
+---
+openapi: 3.0.0
+info:
+  title: Digital Euro Right of Withdrawal API
+  description: |
+    API specification for managing Digital Euro transactions with right of withdrawal.
+    This API provides endpoints to check wallet balance, view transaction history,
+    authorize payments, and manage right of withdrawal requests.
+  version: 1.0.0
+  contact:
+    name: HYPE API Team
+    email: api-support@hype.it
+servers:
+- url: https://api.hype.it/digital-euro/v1
+  description: Production server
+- url: https://api-sandbox.hype.it/digital-euro/v1
+  description: Sandbox environment
+tags:
+- name: Wallet Balance
+  description: Operations related to wallet balance retrieval
+- name: Transaction History
+  description: Operations related to transaction history
+- name: Payment Authorization
+  description: Operations related to payment authorization
+- name: Payment Cancellation
+  description: Operations related to payment cancellation due to right of withdrawal
+paths:
+  "/wallet/balance":
+    get:
+      tags:
+      - Wallet Balance
+      summary: Get wallet balance
+      description: |
+        Retrieves the current balance of the user's Digital Euro wallet,
+        including both the total balance and the available balance (excluding pending reservations).
+      operationId: getWalletBalance
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: walletId
+        in: query
+        description: User's Digital Euro wallet ID
+        required: true
+        schema:
+          type: string
+          example: DEAN123456789
+      responses:
+        '200':
+          description: Balance retrieved successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WalletBalance"
+              example:
+                walletId: DEAN123456789
+                totalBalance:
+                  currency: EUR
+                  amount: '1000.00'
+                availableBalance:
+                  currency: EUR
+                  amount: '800.00'
+                pendingReservationsAmount:
+                  currency: EUR
+                  amount: '200.00'
+                lastUpdated: '2025-03-20T15:30:45Z'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: INVALID_WALLET_ID
+                message: The provided wallet ID is invalid
+                timestamp: '2025-03-20T15:30:45Z'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Wallet not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: WALLET_NOT_FOUND
+                message: Wallet with the specified ID does not exist
+                timestamp: '2025-03-20T15:30:45Z'
+  "/wallet/transactions":
+    get:
+      tags:
+      - Transaction History
+      summary: Get transaction history
+      description: |
+        Retrieves the transaction history for the user's Digital Euro wallet,
+        with optional filtering by transaction type, status, and date range.
+      operationId: getTransactionHistory
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: walletId
+        in: query
+        description: User's Digital Euro wallet ID
+        required: true
+        schema:
+          type: string
+          example: DEAN123456789
+      - name: limit
+        in: query
+        description: Maximum number of transactions to return
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+          example: 20
+      - name: offset
+        in: query
+        description: Number of transactions to skip
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          example: 0
+      - name: status
+        in: query
+        description: Filter by transaction status
+        required: false
+        schema:
+          type: string
+          enum:
+          - PENDING
+          - COMPLETED
+          - CANCELED
+          example: PENDING
+      - name: type
+        in: query
+        description: Filter by transaction type
+        required: false
+        schema:
+          type: string
+          enum:
+          - RESERVATION
+          - PAYMENT
+          - ALL
+          default: ALL
+          example: RESERVATION
+      - name: fromDate
+        in: query
+        description: Filter transactions from this date (inclusive)
+        required: false
+        schema:
+          type: string
+          format: date-time
+          example: '2025-03-01T00:00:00Z'
+      - name: toDate
+        in: query
+        description: Filter transactions to this date (inclusive)
+        required: false
+        schema:
+          type: string
+          format: date-time
+          example: '2025-03-20T23:59:59Z'
+      - name: hasRightOfWithdrawal
+        in: query
+        description: Filter transactions with right of withdrawal
+        required: false
+        schema:
+          type: boolean
+          example: true
+      responses:
+        '200':
+          description: Transaction history retrieved successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TransactionHistoryResponse"
+              example:
+                walletId: DEAN123456789
+                transactions:
+                - transactionId: TX123456789
+                  transactionType: RESERVATION
+                  status: PENDING
+                  counterpartyName: Digital Store
+                  counterpartyId: DEAN987654321
+                  amount:
+                    currency: EUR
+                    amount: '99.99'
+                  description: Premium Subscription
+                  createdDate: '2025-03-15T10:30:45Z'
+                  rightOfWithdrawal: true
+                  rightOfWithdrawalExpiryDate: '2025-03-29T10:30:45Z'
+                  reservationId: RES123456789
+                - transactionId: TX123456790
+                  transactionType: PAYMENT
+                  status: COMPLETED
+                  counterpartyName: Coffee Shop
+                  counterpartyId: DEAN987654322
+                  amount:
+                    currency: EUR
+                    amount: '5.50'
+                  description: Coffee purchase
+                  createdDate: '2025-03-14T08:15:30Z'
+                  rightOfWithdrawal: false
+                pagination:
+                  totalCount: 42
+                  limit: 20
+                  offset: 0
+                  hasMore: true
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Wallet not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/transaction/{transactionId}":
+    get:
+      tags:
+      - Transaction History
+      summary: Get transaction details
+      description: 'Retrieves detailed information about a specific transaction.
+
+        '
+      operationId: getTransactionDetails
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: transactionId
+        in: path
+        description: ID of the transaction to retrieve
+        required: true
+        schema:
+          type: string
+          example: TX123456789
+      responses:
+        '200':
+          description: Transaction details retrieved successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TransactionDetail"
+              example:
+                transactionId: TX123456789
+                transactionType: RESERVATION
+                status: PENDING
+                counterpartyName: Digital Store
+                counterpartyId: DEAN987654321
+                amount:
+                  currency: EUR
+                  amount: '99.99'
+                description: Premium Subscription
+                createdDate: '2025-03-15T10:30:45Z'
+                rightOfWithdrawal: true
+                rightOfWithdrawalExpiryDate: '2025-03-29T10:30:45Z'
+                reservationId: RES123456789
+                paymentRequestId: QRCODE123456789
+                merchantReference: ORDER-12345
+                productCategory: DIGITAL_CONTENT
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: TRANSACTION_NOT_FOUND
+                message: Transaction with the specified ID does not exist
+                timestamp: '2025-03-20T15:30:45Z'
+  "/payments/authorize":
+    post:
+      tags:
+      - Payment Authorization
+      summary: Authorize payment
+      description: 'Authorizes a payment based on QR code data, creating a reservation
+        for transactions with right of withdrawal.
+
+        '
+      operationId: authorizePayment
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PaymentAuthorizationRequest"
+            example:
+              walletId: DEAN123456789
+              qrCodeData:
+                paymentRequestId: QRCODE123456789
+                creditorEntry: DEAN987654321
+                amount:
+                  currency: EUR
+                  amount: '99.99'
+                description: Premium Subscription
+                merchantName: Digital Store
+                rightOfWithdrawal: true
+                rightOfWithdrawalExpiryDate: '2025-03-29T10:30:45Z'
+      responses:
+        '201':
+          description: Payment authorized successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PaymentAuthorizationResponse"
+              example:
+                transactionId: TX123456789
+                reservationId: RES123456789
+                status: PENDING
+                amount:
+                  currency: EUR
+                  amount: '99.99'
+                description: Premium Subscription
+                counterpartyName: Digital Store
+                rightOfWithdrawal: true
+                rightOfWithdrawalExpiryDate: '2025-03-29T10:30:45Z'
+                createdDate: '2025-03-15T10:30:45Z'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: INVALID_QR_CODE_DATA
+                message: The QR code data is invalid or incomplete
+                timestamp: '2025-03-20T15:30:45Z'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '402':
+          description: Payment required (insufficient funds)
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: INSUFFICIENT_FUNDS
+                message: Insufficient funds in the wallet
+                timestamp: '2025-03-20T15:30:45Z'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: DESP_CONNECTION_ERROR
+                message: Error connecting to the DESP platform
+                timestamp: '2025-03-20T15:30:45Z'
+  "/payments/{transactionId}/cancel":
+    post:
+      tags:
+      - Payment Cancellation
+      summary: Cancel payment
+      description: |
+        Cancels a pending payment by exercising the right of withdrawal.
+        This endpoint can only be used for transactions with right of withdrawal
+        that are still within the withdrawal period.
+      operationId: cancelPayment
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: transactionId
+        in: path
+        description: ID of the transaction to cancel
+        required: true
+        schema:
+          type: string
+          example: TX123456789
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PaymentCancellationRequest"
+            example:
+              cancellationReason: CHANGED_MIND
+              additionalNotes: Product did not meet my expectations
+      responses:
+        '200':
+          description: Payment cancelled successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PaymentCancellationResponse"
+              example:
+                transactionId: TX123456789
+                reservationId: RES123456789
+                status: CANCELED
+                amount:
+                  currency: EUR
+                  amount: '99.99'
+                cancellationDate: '2025-03-16T14:25:10Z'
+                confirmationCode: CNCL123456789
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: INVALID_TRANSACTION_ID
+                message: The provided transaction ID is invalid
+                timestamp: '2025-03-20T15:30:45Z'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: RIGHT_OF_WITHDRAWAL_EXPIRED
+                message: The right of withdrawal period has expired for this transaction
+                timestamp: '2025-03-20T15:30:45Z'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: TRANSACTION_ALREADY_CANCELED
+                message: The transaction has already been canceled
+                timestamp: '2025-03-20T15:30:45Z'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: TRANSACTION_NOT_ELIGIBLE
+                message: The transaction is not eligible for right of withdrawal
+                timestamp: '2025-03-20T15:30:45Z'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+              example:
+                code: DESP_CONNECTION_ERROR
+                message: Error connecting to the DESP platform
+                timestamp: '2025-03-20T15:30:45Z'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Amount:
+      type: object
+      description: Amount with currency
+      required:
+      - currency
+      - amount
+      properties:
+        currency:
+          type: string
+          description: Currency code (ISO 4217)
+          example: EUR
+        amount:
+          type: string
+          description: Amount as a string to preserve decimal precision
+          example: '99.99'
+    WalletBalance:
+      type: object
+      description: Wallet balance information
+      required:
+      - walletId
+      - totalBalance
+      - availableBalance
+      - lastUpdated
+      properties:
+        walletId:
+          type: string
+          description: Digital Euro wallet ID (DEAN)
+          example: DEAN123456789
+        totalBalance:
+          "$ref": "#/components/schemas/Amount"
+        availableBalance:
+          "$ref": "#/components/schemas/Amount"
+        pendingReservationsAmount:
+          "$ref": "#/components/schemas/Amount"
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Timestamp of the last balance update
+          example: '2025-03-20T15:30:45Z'
+    Transaction:
+      type: object
+      description: Transaction information
+      required:
+      - transactionId
+      - transactionType
+      - status
+      - counterpartyName
+      - counterpartyId
+      - amount
+      - createdDate
+      - rightOfWithdrawal
+      properties:
+        transactionId:
+          type: string
+          description: Unique transaction identifier
+          example: TX123456789
+        transactionType:
+          type: string
+          description: Type of transaction
+          enum:
+          - RESERVATION
+          - PAYMENT
+          example: RESERVATION
+        status:
+          type: string
+          description: Status of the transaction
+          enum:
+          - PENDING
+          - COMPLETED
+          - CANCELED
+          example: PENDING
+        counterpartyName:
+          type: string
+          description: Name of the counterparty (merchant)
+          example: Digital Store
+        counterpartyId:
+          type: string
+          description: Digital Euro wallet ID of the counterparty
+          example: DEAN987654321
+        amount:
+          "$ref": "#/components/schemas/Amount"
+        description:
+          type: string
+          description: Description of the transaction
+          example: Premium Subscription
+        createdDate:
+          type: string
+          format: date-time
+          description: Timestamp of transaction creation
+          example: '2025-03-15T10:30:45Z'
+        rightOfWithdrawal:
+          type: boolean
+          description: Indicates if the transaction has right of withdrawal
+          example: true
+        rightOfWithdrawalExpiryDate:
+          type: string
+          format: date-time
+          description: Expiration date for right of withdrawal, if applicable
+          example: '2025-03-29T10:30:45Z'
+        reservationId:
+          type: string
+          description: Reservation ID for pending transactions
+          example: RES123456789
+    TransactionDetail:
+      type: object
+      description: Detailed transaction information
+      allOf:
+      - "$ref": "#/components/schemas/Transaction"
+      - type: object
+        properties:
+          paymentRequestId:
+            type: string
+            description: Original payment request ID from QR code
+            example: QRCODE123456789
+          merchantReference:
+            type: string
+            description: Merchant's reference for this transaction
+            example: ORDER-12345
+          productCategory:
+            type: string
+            description: Category of product or service
+            example: DIGITAL_CONTENT
+    TransactionHistoryResponse:
+      type: object
+      description: Response for transaction history request
+      required:
+      - walletId
+      - transactions
+      - pagination
+      properties:
+        walletId:
+          type: string
+          description: Digital Euro wallet ID
+          example: DEAN123456789
+        transactions:
+          type: array
+          description: List of transactions
+          items:
+            "$ref": "#/components/schemas/Transaction"
+        pagination:
+          type: object
+          description: Pagination information
+          required:
+          - totalCount
+          - limit
+          - offset
+          - hasMore
+          properties:
+            totalCount:
+              type: integer
+              description: Total number of transactions matching the filter
+              example: 42
+            limit:
+              type: integer
+              description: Maximum number of transactions returned
+              example: 20
+            offset:
+              type: integer
+              description: Number of transactions skipped
+              example: 0
+            hasMore:
+              type: boolean
+              description: Indicates if there are more transactions to fetch
+              example: true
+    QRCodeData:
+      type: object
+      description: Data extracted from the QR code
+      required:
+      - paymentRequestId
+      - creditorEntry
+      - amount
+      properties:
+        paymentRequestId:
+          type: string
+          description: Unique identifier for the payment request
+          example: QRCODE123456789
+        creditorEntry:
+          type: string
+          description: Digital Euro wallet ID of the creditor (merchant)
+          example: DEAN987654321
+        amount:
+          "$ref": "#/components/schemas/Amount"
+        description:
+          type: string
+          description: Description of the product or service
+          example: Premium Subscription
+        merchantName:
+          type: string
+          description: Name of the merchant
+          example: Digital Store
+        rightOfWithdrawal:
+          type: boolean
+          description: Indicates if the transaction has right of withdrawal
+          example: true
+        rightOfWithdrawalExpiryDate:
+          type: string
+          format: date-time
+          description: Expiration date for right of withdrawal, if applicable
+          example: '2025-03-29T10:30:45Z'
+    PaymentAuthorizationRequest:
+      type: object
+      description: Request to authorize a payment
+      required:
+      - walletId
+      - qrCodeData
+      properties:
+        walletId:
+          type: string
+          description: Digital Euro wallet ID of the payer
+          example: DEAN123456789
+        qrCodeData:
+          "$ref": "#/components/schemas/QRCodeData"
+    PaymentAuthorizationResponse:
+      type: object
+      description: Response for payment authorization
+      required:
+      - transactionId
+      - reservationId
+      - status
+      - amount
+      - createdDate
+      properties:
+        transactionId:
+          type: string
+          description: Unique transaction identifier
+          example: TX123456789
+        reservationId:
+          type: string
+          description: Reservation ID for the transaction
+          example: RES123456789
+        status:
+          type: string
+          description: Status of the transaction
+          enum:
+          - PENDING
+          - COMPLETED
+          - CANCELED
+          example: PENDING
+        amount:
+          "$ref": "#/components/schemas/Amount"
+        description:
+          type: string
+          description: Description of the transaction
+          example: Premium Subscription
+        counterpartyName:
+          type: string
+          description: Name of the counterparty (merchant)
+          example: Digital Store
+        rightOfWithdrawal:
+          type: boolean
+          description: Indicates if the transaction has right of withdrawal
+          example: true
+        rightOfWithdrawalExpiryDate:
+          type: string
+          format: date-time
+          description: Expiration date for right of withdrawal, if applicable
+          example: '2025-03-29T10:30:45Z'
+        createdDate:
+          type: string
+          format: date-time
+          description: Timestamp of transaction creation
+          example: '2025-03-15T10:30:45Z'
+    PaymentCancellationRequest:
+      type: object
+      description: Request to cancel a payment using right of withdrawal
+      properties:
+        cancellationReason:
+          type: string
+          description: Reason for cancellation
+          enum:
+          - CHANGED_MIND
+          - UNSATISFACTORY_SERVICE
+          - BETTER_ALTERNATIVE
+          - OTHER
+          example: CHANGED_MIND
+        additionalNotes:
+          type: string
+          description: Additional notes regarding the cancellation
+          example: Product did not meet my expectations
+    PaymentCancellationResponse:
+      type: object
+      description: Response for payment cancellation
+      required:
+      - transactionId
+      - reservationId
+      - status
+      - amount
+      - cancellationDate
+      - confirmationCode
+      properties:
+        transactionId:
+          type: string
+          description: Unique transaction identifier
+          example: TX123456789
+        reservationId:
+          type: string
+          description: Reservation ID for the transaction
+          example: RES123456789
+        status:
+          type: string
+          description: Status of the transaction after cancellation
+          enum:
+          - CANCELED
+          example: CANCELED
+        amount:
+          "$ref": "#/components/schemas/Amount"
+        cancellationDate:
+          type: string
+          format: date-time
+          description: Timestamp of the cancellation
+          example: '2025-03-16T14:25:10Z'
+        confirmationCode:
+          type: string
+          description: Confirmation code for the cancellation
+          example: CNCL123456789
+    Error:
+      type: object
+      description: Error response
+      required:
+      - code
+      - message
+      - timestamp
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: INVALID_REQUEST
+        message:
+          type: string
+          description: Error message
+          example: The request is invalid
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the error
+          example: '2025-03-20T15:30:45Z'
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true

@@ -10,11 +10,13 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 @SpringBootApplication(exclude = {ErrorMvcAutoConfiguration.class})
 @ComponentScan(basePackages = {
-        "it.hype.profile.vantaggi",
-        "it.hype.errorhandler",
-        "it.hype.authhandler",
-        "it.hype.requestinfoaspect"
+    "it.hype.profile.pocdigitaleuro",
+    "it.hype.profile.vantaggi",
+    "it.hype.errorhandler",
+    "it.hype.authhandler",
+    "it.hype.requestinfoaspect"
 })
+
 @EnableMongoAuditing
 @EnableFeignClients
 public class Application {
