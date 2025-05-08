@@ -1,6 +1,7 @@
 spring:
   main:
     banner-mode: "off"
+    allow-bean-definition-overriding: true
   data:
     mongodb:
       uri: mongodb://localhost:27017/crm
