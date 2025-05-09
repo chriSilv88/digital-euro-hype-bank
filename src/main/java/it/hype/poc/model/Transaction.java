@@ -1,5 +1,8 @@
 package it.hype.poc.model;
 
+import it.hype.poc.model.TransactionStatus;
+import it.hype.poc.model.TransactionType;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,8 +14,8 @@ public class Transaction {
     @Id
     private String id;
     private String walletId;
-    private String type;
-    private String status;
+    private TransactionStatus status;
+    private TransactionType type;
     private BigDecimal amount;
     private String counterpartyId;
     private String description;
@@ -36,19 +39,19 @@ public class Transaction {
         this.walletId = walletId;
     }
 
-    public String getType() {
+    public TransactionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 
-    public String getStatus() {
+    public TransactionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TransactionStatus status) {
         this.status = status;
     }
 

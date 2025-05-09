@@ -1,6 +1,9 @@
 package it.hype.poc.controller;
 
 import it.hype.poc.model.Transaction;
+import it.hype.poc.model.TransactionStatus;
+import it.hype.poc.model.TransactionType;
+
 import it.hype.poc.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +18,21 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+    public ResponseEntity<List<Transaction>> getAllTransactions(
+        @RequestParam(name = "walletId") String walletId,
+        @RequestParam(name = "status", required = false) TransactionStatus status,
+        @RequestParam(name = "type", required = false) TransactionType type,
+        @RequestParam(name = "rightOfWithdrawal", required = false) Boolean hasRightOfWithdrawal,
+        @RequestParam(name = "fromDate", required = false) String fromDate,
+        @RequestParam(name = "toDate", required = false) String toDate
+)
+ {
+        List<Transaction> results = transactionService.getFilteredTransactions(
+            walletId, status, type, hasRightOfWithdrawal, fromDate, toDate
+        );
+        return ResponseEntity.ok(results);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Transaction> getTransactionById(@PathVariable String id) {
