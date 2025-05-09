@@ -42,7 +42,9 @@ public class TransactionService {
         TransactionType type, 
         Boolean hasRightOfWithdrawal, 
         String fromDate, 
-        String toDate) {
+        String toDate,
+        int limit,
+        int offset) {
         List<Criteria> criteriaList = new ArrayList<>();
 
         criteriaList.add(Criteria.where("walletId").is(walletId));
@@ -82,6 +84,7 @@ public class TransactionService {
             query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
         }
 
+        query.skip(offset).limit(limit);
         System.out.println("Query generata: " + query);
         return mongoTemplate.find(query, Transaction.class);
     }
